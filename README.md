@@ -14,7 +14,7 @@ edge (JSON : harvesevent)
 -> disaster=true/false(kafka topic)
 ****
 
-##Install and run Kafka
+## Install and run Kafka
 
 Run zookeeper
 
@@ -34,7 +34,7 @@ bin/kafka-topics.sh --create --zookeeper localhost:2181     --replication-factor
 bin/kafka-topics.sh --create --zookeeper localhost:2181     --replication-factor 1 --partitions 1 --topic disaster
 ```
 
-##Start Application
+## Start Application
 
 Start the application
 
@@ -55,7 +55,7 @@ bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic disaster
 ```
 
 
-##Send In data 
+## Send In data 
 
 In ***HARVEST SENDER*** send in the following data
 
