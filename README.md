@@ -1,4 +1,4 @@
-# Kafka Streams Quarques Kogito Project
+# Kafka Streams Quarkus Kogito Project
 
 
 The *alert* topic listens to incoming feeds of harvest count from edge device. The disaster monitor application will monitor all the input and sum up the total incoming counts, if the total harvest count is less then 150 every 10 sec, it will need to notify users in the *disaster* channel (topic)
