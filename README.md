@@ -14,7 +14,8 @@ edge (JSON : harvesevent)
 -> disaster=true/false(kafka topic)
 ****
 
-## Install and run Kafka
+## Running Local
+### Install and run Kafka
 
 Run zookeeper
 
@@ -34,7 +35,7 @@ bin/kafka-topics.sh --create --zookeeper localhost:2181     --replication-factor
 bin/kafka-topics.sh --create --zookeeper localhost:2181     --replication-factor 1 --partitions 1 --topic disaster
 ```
 
-## Start Application
+### Start Application
 
 Start the application
 
@@ -55,7 +56,7 @@ bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic disaster
 ```
 
 
-## Send In data 
+### Send In data 
 
 In ***HARVEST SENDER*** send in the following data
 
@@ -76,4 +77,47 @@ Should get something similar as follows.
 {"totalCnt":156,"disaster":false}
 {"totalCnt":78,"disaster":true}
 {"totalCnt":78,"disaster":true}
+```
+
+## Deploying to OpenShift
+
+### Install AMQ Streams
+
+```
+oc new-project streams
+```
+
+- Install AMQ Streams Operator
+- create kafka cluster
+- create two kafka topics, alert and dis
+
+
+### Build and deploy to OpenShift
+
+Login to OpenShift with the CLI tool
+
+```
+oc new-project mydemo
+oc new-build --binary --name=cep-kogito -l app=cep-kogito
+oc patch bc/cep-kogito -p "{\"spec\":{\"strategy\":{\"dockerStrategy\":{\"dockerfilePath\":\"src/main/docker/Dockerfile.native\"}}}}"
+oc start-build cep-kogito --from-dir=. --follow
+```
+
+Update the configuration in application.properties for Kafka server URL: 
+There are two ways, with config map or without. 
+
+```
+oc create -f support/cm.yaml 
+oc patch bc/cep-kogito -p "{\"spec\":{\"source\": {\"configMaps\": [{\"configMap\": {\"name\": \"cep-kogito\"}}]}}}"
+oc new-app --image-stream=cep-kogito
+oc patch dc/cep-kogito -p "{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"cep-kogito\",\"env\": [{\"name\": \"quarkus.kafka-streams.bootstrap-servers\",\"valueFrom\": {\"configMapKeyRef\": {\"name\": \"cep-kogito\",\"key\": \"bootstrap-servers\",\"optional\": false}}},{\"name\": \"quarkus.kafka-streams.application-server\",\"valueFrom\": {\"configMapKeyRef\": {\"name\": \"cep-kogito\",\"key\": \"application-servers\",\"optional\": false}}}]}]}}}}"
+```
+
+
+or you can simply do this:
+
+```
+oc new-app --image-stream=cep-kogito \
+ -e quarkus.kafka-streams.bootstrap-servers=my-cluster-kafka-bootstrap.streams.svc:9092 \
+ -e quarkus.kafka-streams.application-server=my-cluster-kafka-bootstrap.streams.svc:9090 
 ```

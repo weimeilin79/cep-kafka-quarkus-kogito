@@ -1,0 +1,7 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cep-kogito
+data:
+  application-server: 'my-cluster-kafka-bootstrap.streams.svc:9090'
+  bootstrap-servers: 'my-cluster-kafka-bootstrap.streams.svc:9092'
